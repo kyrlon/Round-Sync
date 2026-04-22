@@ -486,6 +486,8 @@
     <string name="description_sync_direction_copy_toremote">Copy new or modified files from local storage to remote storage. No files are deleted, existing files on the remote may be overwritten.</string>
     <string name="description_sync_direction_copy_tolocal">Copy new or modified files from remote storage to local storage. No files are deleted, existing files on the local storage may be overwritten.</string>
     <string name="description_sync_direction_sync_bidirectional">Make sure local and remote storage have the same files by transferring, downloading, and deleting files as needed to maintain an identical folder structure.</string>
+    <string name="sync_direction_smart_sync">Smart Sync</string>
+    <string name="description_sync_direction_smart_sync">Compares modification times of the local and remote files, then copies only in the direction where the file is newer. Skips the sync if both sides are identical. Best used for single-file syncs such as a KeePass database.</string>
     <string name="filter_type_include">Include</string>
     <string name="filter_type_exclude">Exclude</string>
     <string name="intro_success">Success!</string>
@@ -511,6 +513,10 @@
     <string name="trigger_type_schedule">Scheduled</string>
     <string name="trigger_type_interval">Interval</string>
     <string name="task_interval">Interval Settings</string>
+    <string name="trigger_interval_format">Every %d minutes</string>
+    <string name="trigger_interval_1_min">Every 1 minute</string>
+    <string name="trigger_interval_5_min">Every 5 minutes</string>
+    <string name="trigger_interval_10_min">Every 10 minutes</string>
     <string name="trigger_interval_15_min">Every 15 minutes</string>
     <string name="trigger_interval_30_min">Every 30 minutes</string>
     <string name="trigger_interval_60_min">Every 60 minutes</string>

@@ -36,6 +36,9 @@ public class SyncDirectionObject {
     public static final int SYNC_BIDIRECTIONAL_INITIAL = 5;
     public static final int SYNC_BIDIRECTIONAL = 6;
 
+    // Compares local vs remote mod time and copies only in the direction where the file is newer.
+    public static final int SMART_SYNC = 7;
+
 
     public static String[] getOptionsArray(Context context) {
         return context.getResources().getStringArray(R.array.sync_direction_array);

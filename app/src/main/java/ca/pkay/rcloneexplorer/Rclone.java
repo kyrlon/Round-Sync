@@ -31,7 +31,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -677,6 +681,45 @@ public class Rclone {
      * @param syncDirection
      * @return
      */
+    /**
+     * Returns the remote file's last modified time in milliseconds since epoch, or -1 on failure.
+     * Uses rclone lsjson -M on the exact remote path. Works correctly for single-file paths.
+     */
+    public long getRemoteFileModTime(RemoteItem remote, String remotePath) {
+        String remoteName = remote.getName();
+        String localRemotePath = (remote.isRemoteType(RemoteItem.LOCAL)) ? getLocalRemotePathPrefix(remote, context) + "/" : "";
+        String remoteSection = (remotePath.compareTo("//" + remoteName) == 0)
+                ? remoteName + ":" + localRemotePath
+                : remoteName + ":" + localRemotePath + remotePath;
+
+        String[] command = createCommandWithOptions("lsjson", "-M", remoteSection);
+        String[] env = getRcloneEnv();
+        try {
+            Process process = getRuntimeProcess(command, env);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+            process.waitFor();
+            if (process.exitValue() != 0) return -1;
+
+            JSONArray results = new JSONArray(output.toString());
+            if (results.length() == 0) return -1;
+
+            String modTimeStr = results.getJSONObject(0).getString("ModTime");
+            // rclone ModTime is ISO 8601, e.g. "2024-01-15T10:30:00.000000000+00:00"
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date parsed = sdf.parse(modTimeStr.substring(0, 19));
+            return parsed != null ? parsed.getTime() : -1;
+        } catch (Exception e) {
+            FLog.e(TAG, "getRemoteFileModTime: failed", e);
+            return -1;
+        }
+    }
+
     @Deprecated
     public Process sync(RemoteItem remoteItem, String localPath, String remotePath, int syncDirection) {
         return sync(remoteItem, localPath, remotePath, syncDirection, false, new ArrayList<>(0), false);

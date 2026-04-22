@@ -15,6 +15,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import ca.pkay.rcloneexplorer.Database.DatabaseHandler
 import ca.pkay.rcloneexplorer.Items.RemoteItem
+import ca.pkay.rcloneexplorer.Items.SyncDirectionObject
 import ca.pkay.rcloneexplorer.Items.Task
 import ca.pkay.rcloneexplorer.Log2File
 import ca.pkay.rcloneexplorer.R
@@ -156,19 +157,46 @@ class SyncWorker (private var mContext: Context, workerParams: WorkerParameters)
             mTitle = mTask.remotePath
         }
         if(arePreconditionsMet()) {
-            val taskFilter = if(mTask.filterId != null ) mDatabase.getFilter(mTask.filterId!!) else null;
+            val taskFilter = if(mTask.filterId != null ) mDatabase.getFilter(mTask.filterId!!) else null
             val taskFilterList = taskFilter?.getFilters() ?: ArrayList()
+
+            val resolvedDirection = if (mTask.direction == SyncDirectionObject.SMART_SYNC) {
+                resolveSmartSyncDirection(remoteItem)
+            } else {
+                mTask.direction
+            }
+
+            if (resolvedDirection == -1) {
+                log("Smart Sync: local and remote are identical, skipping")
+                return
+            }
+
             sRcloneProcess = mRclone.sync(
                 remoteItem,
                 mTask.localPath,
                 mTask.remotePath,
-                mTask.direction,
+                resolvedDirection,
                 mTask.md5sum,
                 taskFilterList,
                 mTask.deleteExcluded
             )
             handleSync(mTitle)
             sendUploadFinishedBroadcast(remoteItem.name, mTask.remotePath)
+        }
+    }
+
+    private fun resolveSmartSyncDirection(remoteItem: RemoteItem): Int {
+        val localFile = java.io.File(mTask.localPath)
+        val localModTime = if (localFile.exists()) localFile.lastModified() else 0L
+        val remoteModTime = mRclone.getRemoteFileModTime(remoteItem, mTask.remotePath)
+
+        return when {
+            localModTime == 0L && remoteModTime <= 0L -> -1
+            localModTime == 0L -> SyncDirectionObject.COPY_REMOTE_TO_LOCAL
+            remoteModTime <= 0L -> SyncDirectionObject.COPY_LOCAL_TO_REMOTE
+            localModTime > remoteModTime -> SyncDirectionObject.COPY_LOCAL_TO_REMOTE
+            remoteModTime > localModTime -> SyncDirectionObject.COPY_REMOTE_TO_LOCAL
+            else -> -1
         }
     }
 

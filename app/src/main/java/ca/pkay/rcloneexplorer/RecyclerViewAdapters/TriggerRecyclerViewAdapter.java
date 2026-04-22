@@ -268,21 +268,7 @@ public class TriggerRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
 
         public void setTime(Trigger trigger, Context context) {
-            String text;
-            switch (trigger.getTime()) {
-                case 15:
-                    text = context.getString(R.string.trigger_interval_15_min);
-                    break;
-                case 30:
-                    text = context.getString(R.string.trigger_interval_30_min);
-                    break;
-                case 120:
-                    text = context.getString(R.string.trigger_interval_120_min);
-                    break;
-                case 60:
-                default:
-                    text = context.getString(R.string.trigger_interval_60_min);
-            }
+            String text = context.getString(R.string.trigger_interval_format, trigger.getTime());
             mIinterval.setText(text);
         }
     }

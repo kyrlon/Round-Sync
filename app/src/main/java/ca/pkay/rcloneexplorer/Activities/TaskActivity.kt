@@ -238,7 +238,7 @@ class TaskActivity : AppCompatActivity(), FolderSelectorCallback{
         taskToPopulate.title = findViewById<EditText>(R.id.task_title_textfield).text.toString()
         val remotename = remoteDropdown.selectedItem.toString()
         taskToPopulate.remoteId = remotename
-        val direction = syncDirection.selectedItemPosition + 1
+        val direction = DIRECTION_VALUES.getOrElse(syncDirection.selectedItemPosition) { SyncDirectionObject.SYNC_LOCAL_TO_REMOTE }
         for (ri in rcloneInstance.remotes) {
             if (ri.name == taskToPopulate.remoteId) {
                 taskToPopulate.remoteType = ri.type
@@ -486,12 +486,13 @@ class TaskActivity : AppCompatActivity(), FolderSelectorCallback{
                 position: Int,
                 id: Long
             ) {
-                updateSpinnerDescription(position + 1)
+                updateSpinnerDescription(DIRECTION_VALUES.getOrElse(position) { SyncDirectionObject.SYNC_LOCAL_TO_REMOTE })
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {}
         }
-        syncDirection.setSelection((((existingTask?.direction?.minus(1)) ?: 0)) )
+        val directionPos = DIRECTION_VALUES.indexOf(existingTask?.direction ?: SyncDirectionObject.SYNC_LOCAL_TO_REMOTE).coerceAtLeast(0)
+        syncDirection.setSelection(directionPos)
     }
 
     private fun updateSpinnerDescription(value: Int) {
@@ -507,6 +508,8 @@ class TaskActivity : AppCompatActivity(), FolderSelectorCallback{
                 getString(R.string.description_sync_direction_copy_tolocal)
             SyncDirectionObject.SYNC_BIDIRECTIONAL -> text =
                 getString(R.string.description_sync_direction_sync_bidirectional)
+            SyncDirectionObject.SMART_SYNC -> text =
+                getString(R.string.description_sync_direction_smart_sync)
         }
         syncDescription.text = text
     }
@@ -517,6 +520,13 @@ class TaskActivity : AppCompatActivity(), FolderSelectorCallback{
         const val REQUEST_CODE_FP_REMOTE = 444
         const val REQUEST_CODE_FILTER = 333
 
+        val DIRECTION_VALUES = intArrayOf(
+            SyncDirectionObject.SYNC_LOCAL_TO_REMOTE,
+            SyncDirectionObject.SYNC_REMOTE_TO_LOCAL,
+            SyncDirectionObject.COPY_LOCAL_TO_REMOTE,
+            SyncDirectionObject.COPY_REMOTE_TO_LOCAL,
+            SyncDirectionObject.SMART_SYNC
+        )
     }
 
     inner class TaskNameIdPair(var id: Long, private var name: String) {

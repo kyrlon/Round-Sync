@@ -18,6 +18,9 @@
     </string-array>
 
     <string-array name="triggerIntervals">
+        <item>@string/trigger_interval_1_min</item>
+        <item>@string/trigger_interval_5_min</item>
+        <item>@string/trigger_interval_10_min</item>
         <item>@string/trigger_interval_15_min</item>
         <item>@string/trigger_interval_30_min</item>
         <item>@string/trigger_interval_60_min</item>

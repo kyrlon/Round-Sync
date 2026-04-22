@@ -182,10 +182,13 @@ class TriggerActivity : AppCompatActivity() {
         mInterval.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, pos: Int, id: Long) {
                 when (pos) {
-                    0 -> mTrigger.time = 15
-                    1 -> mTrigger.time = 30
-                    3 -> mTrigger.time = 120
-                    2 -> mTrigger.time = 60
+                    0 -> mTrigger.time = 1
+                    1 -> mTrigger.time = 5
+                    2 -> mTrigger.time = 10
+                    3 -> mTrigger.time = 15
+                    4 -> mTrigger.time = 30
+                    5 -> mTrigger.time = 60
+                    6 -> mTrigger.time = 120
                     else -> mTrigger.time = 60
                 }
             }
@@ -248,11 +251,14 @@ class TriggerActivity : AppCompatActivity() {
         } else {
             mCardInterval.visibility = View.VISIBLE
             when (timeValue) {
-                15 -> mInterval.setSelection(0)
-                30 -> mInterval.setSelection(1)
-                120 -> mInterval.setSelection(3)
-                60 -> mInterval.setSelection(2)
-                else -> mInterval.setSelection(2)
+                1 -> mInterval.setSelection(0)
+                5 -> mInterval.setSelection(1)
+                10 -> mInterval.setSelection(2)
+                15 -> mInterval.setSelection(3)
+                30 -> mInterval.setSelection(4)
+                60 -> mInterval.setSelection(5)
+                120 -> mInterval.setSelection(6)
+                else -> mInterval.setSelection(5)
             }
         }
 
